@@ -1,3 +1,4 @@
+# test.py
 import sys
 from PyQt5.QtWidgets import QApplication, QWidget
 
@@ -11,7 +12,7 @@ class EmptyWindow(QWidget):
 		윈도우 화면에 출력되는 컨텐츠 초기화
 		"""
 		self.setGeometry(100, 100, 400, 300)
-		self.setWindowTitle("안녕하세요")
+		self.setWindowTitle("안녕하세요") # 창 캡션
 		self.show()
 
 # 프로그램 실행
