@@ -1,0 +1,5 @@
+git remote add origin https://github.com/splendorsu/pyqt5-2022.git
+git branch -M main
+git push -u origin main
+
+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
