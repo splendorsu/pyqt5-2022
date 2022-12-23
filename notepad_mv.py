@@ -24,18 +24,12 @@ class Model(QObject):
 			self.error.emit(error)
 
 class View(QWidget):
-	def __init__(self):
-		super().__init__()  # QWidget의 기본 생성자 부름
-		self.initializeUI()
+	submitted = pyqtSignal(str,str)
 
-	def initializeUI(self):
-		"""
-		윈도우 화면에 출력되는 컨텐츠 초기화
-		"""
-		self.setGeometry(100, 100, 300, 400) # 창 위치 지정
-		self.setWindowTitle("메모장") # 창 캡션
+	def __init__(self, parent):
+		super().__init__(parent)  # QWidget의 기본 생성자 부름
+		self.parent = parent
 		self.notepadWidgets()
-		self.show() 
 
 	def notepadWidgets(self):
 		new_button = QPushButton("New", self)
@@ -63,7 +57,7 @@ class View(QWidget):
 		v_box.addLayout(top_h_box)
 		v_box.addLayout(main_h_box)
 
-		self.setLayout(v_box)
+		self.parent.setLayout(v_box)
 
 	def clearText(self):
 		answer = QMessageBox.question(self, "Clear Text", "텍스트를 지우시겠습니까?", QMessageBox.No | QMessageBox.Yes, QMessageBox.Yes )
@@ -78,13 +72,37 @@ class View(QWidget):
 		notepad_text = self.text_entry.toPlainText()
 		file_name, _ = QFileDialog.getSaveFileName(self, "파일 저장", "", "모든 파일(*.*);; 텍스트 파일(*.txt)", options = options)
 
-		if file_name :
-			with open(file_name, 'w', encoding = 'utf-8') as f:
-				f.write(notepad_text)
+		self.submitted.emit(file_name, notepad_text)
+
+	def showError(self, error):
+		QMessageBox.warning(self, "Error", error)
+
+class Notepad(QWidget):
+	def __init__(self):
+		super().__init__()  # QWidget의 기본 생성자 부름
+		self.initializeUI()
+
+	def initializeUI(self):
+		"""
+		윈도우 화면에 출력되는 컨텐츠 초기화
+		"""
+		self.setGeometry(100, 100, 300, 400) # 창 위치 지정
+		self.setWindowTitle("메모장") # 창 캡션
+
+		self.view = View(self)
+		self.model = Model()
+
+		self.view.submitted.connect(self.model.save)
+		self.model.error.connect(self.view.showError)
+		self.show() 		
+
+		# self.notepadWidgets()
+		self.show() 
+
 
 # 프로그램 실행
 if __name__ == '__main__':
 	app = QApplication(sys.argv) # sys.argv
 	# print(sys.argv)
-	window = View()
+	window = Notepad()
 	sys.exit(app.exec_())
